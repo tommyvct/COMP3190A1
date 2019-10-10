@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - A1Q1",
+            "request": "launch",
+            "mainClass": "A1Q1",
+            "projectName": "COMP3190A1_fec8c184"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - A1Q2",
             "request": "launch",
             "mainClass": "A1Q2",
