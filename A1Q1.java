@@ -5,8 +5,8 @@ import java.util.Stack;
 /**
  * A1Q1
  */
-public class A1Q1 {
-
+public class A1Q1 
+{
     public static void main(String[] args) 
     {
         Scanner in = new Scanner(System.in);
@@ -22,40 +22,6 @@ public class A1Q1 {
         dfs.depthFirstSearch();
     }
     
-    // public static void depthFirstSearch(ArrayList<AztecNode> original) 
-    // {
-    //     ArrayList<AztecNode> searchThis = deepCopy(original);
-    //     Stack<ArrayList<AztecNode>> open = new Stack<ArrayList<AztecNode>>();
-    //     Stack<ArrayList<AztecNode>> closed = new Stack<ArrayList<AztecNode>>();
-
-    //     open.push(searchThis);
-
-    //     do
-    //     {
-    //         ArrayList<AztecNode> popped = open.pop();
-    //         // permute 1 ~ 9
-    //         for (int i = 1; i <= 9; i++) 
-    //         {
-    //             ArrayList<AztecNode> toPush = deepCopy(popped);
-    //             // find the 0
-    //             for (AztecNode n : toPush) 
-    //             {
-    //                 if (n.getNode() == 0)
-    //                 {
-    //                     n.setNode(i);  // override 0
-    //                     break;
-    //                 }
-    //             }
-
-    //             if (isValid(toPush) && !closed.contains(toPush))
-    //             {
-    //                 open.push(toPush);
-    //             }
-    //         }
-    //     }
-    //     while (!open.isEmpty());
-    // }
-
     public static ArrayList<AztecNode> deepCopy(ArrayList<AztecNode> original)
     {
         ArrayList<AztecNode> ret = new ArrayList<AztecNode>();
@@ -130,7 +96,12 @@ class AztecNode
     {
         this.level = level;
     }
-
+    
+    // children info is lost during deep copy
+    public AztecNode deepCopy()
+    {
+        return new AztecNode(this.node, this.level, null, null);
+    }
 }
 
 /**
@@ -148,8 +119,26 @@ class AztecState
 
         for (AztecNode n : toCopy.state) 
         {
-            this.state.add(n);
+            this.state.add(n.deepCopy());
         }
+
+        // link children to the nodes
+        for (int i = 0; i < this.state.size(); i++)
+        {
+            int leftChildIndex = i + this.state.get(i).getLevel();
+            int rightChildIndex = leftChildIndex + 1;
+
+            if (leftChildIndex >= state.size())
+            {
+                continue;
+            }
+            else
+            {
+                state.get(i).setLeftChild(state.get(leftChildIndex));
+                state.get(i).setRightChild(state.get(rightChildIndex));
+            }
+        }
+        
     }
 
     public AztecState(String initialState)
@@ -203,7 +192,19 @@ class AztecState
     @Override
     public String toString() 
     {
-        return this.state.toString();
+        String ret = "";
+        
+        for (AztecNode n : this.state) 
+        {
+            ret += n.node;
+            ret += ",";
+            // if (n == this.state.get(this.state.size() - 1));
+            // {
+            //     break;
+            // }
+        }
+
+        return ret;
     }
 
     public AztecNode get(int i)
@@ -271,6 +272,7 @@ class AztecState
             AztecState popped = open.pop();
             ArrayList<AztecState> toPush = validate(permute(popped));
             AztecState possibleAnswer = findAnswer(toPush);
+
             if (possibleAnswer == null)
             {
                 for (AztecState s : toPush) 
@@ -334,35 +336,6 @@ class AztecState
         return toValidate;
     }
 
-    // private boolean isAnswerFound(ArrayList<AztecState> toFind)
-    // {
-    //     for (AztecState s : toFind) 
-    //     {
-    //         for (AztecNode n : s.state) 
-    //         {
-
-    //             if (n.leftChild == null || n.rightChild == null)  // reached end
-    //             {
-    //                 continue;
-    //             }
-    //             if   // neither one of + - * /
-    //             (!(
-    //                 leftChild.getNode() + rightChild.getNode() == node.getNode()
-    //                 ||
-    //                 leftChild.getNode() - rightChild.getNode() == node.getNode()
-    //                 ||
-    //                 leftChild.getNode() * rightChild.getNode() == node.getNode()
-    //                 ||
-    //                 leftChild.getNode() / rightChild.getNode() == node.getNode()
-    //             ))
-    //             {
-    //                 continue;
-    //             }
-    
-    //         }
-    //     }
-    // }
-
     private boolean haveZero()
     {
         for (AztecNode n : this.state) 
@@ -401,5 +374,4 @@ class AztecState
 
         return ret;
     }
-
 }
