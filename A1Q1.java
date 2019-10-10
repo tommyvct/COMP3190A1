@@ -1,6 +1,8 @@
 import java.util.ArrayList;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.Stack;
+import java.util.LinkedList;
 
 /**
  * A1Q1
@@ -17,9 +19,14 @@ public class A1Q1
         AztecState dfs = original.deepCopy();
         AztecState bfs = original.deepCopy();
         AztecState ids = original.deepCopy();
-        AztecState informed = original.deepCopy();
+        // AztecState informed = original.deepCopy();
 
         dfs.depthFirstSearch();
+        bfs.breadthFirstSearch();
+        ids.iterativeDeepeningSearch(100);
+
+        // AztecState test = new AztecState("3,9,6,1,9,3,7,4,0,8");
+        // System.out.println(test.isValid());
     }
     
     public static ArrayList<AztecNode> deepCopy(ArrayList<AztecNode> original)
@@ -101,6 +108,12 @@ class AztecNode
     public AztecNode deepCopy()
     {
         return new AztecNode(this.node, this.level, null, null);
+    }
+
+    @Override
+    public String toString() 
+    {
+        return "" + this.node;
     }
 }
 
@@ -212,7 +225,7 @@ class AztecState
         return this.state.get(i);
     }
 
-    private boolean isValid()
+    public boolean isValid()
     {
         for (AztecNode node : this.state) 
         {
@@ -240,8 +253,10 @@ class AztecState
             (!(
                 leftChild.getNode() + rightChild.getNode() == node.getNode() ||
                 leftChild.getNode() - rightChild.getNode() == node.getNode() ||
+                rightChild.getNode() - leftChild.getNode() == node.getNode() ||
                 leftChild.getNode() * rightChild.getNode() == node.getNode() ||
-                leftChild.getNode() / rightChild.getNode() == node.getNode()
+                (double) leftChild.getNode() / (double) rightChild.getNode() == (double) node.getNode() || 
+                (double) rightChild.getNode() / (double) leftChild.getNode() == (double) node.getNode()
             ))
             {
                 return false;
@@ -263,7 +278,6 @@ class AztecState
     public void depthFirstSearch()
     {
         Stack<AztecState> open = new Stack<AztecState>();
-        Stack<AztecState> closed = new Stack<AztecState>();
 
         open.push(this);
 
@@ -282,31 +296,111 @@ class AztecState
             }
             else
             {
-                System.out.print("Solution found:" + possibleAnswer.toString());
+                System.out.print("DFS Solution found: " + possibleAnswer.toString());
                 System.out.println();
-                System.out.println(permutation + "generated.");
+                System.out.println(permutation + " permutations generated.");
                 return;
             }
         } 
         while (!open.isEmpty());
     }
 
+    public void breadthFirstSearch()
+    {
+        Queue<AztecState> open = new LinkedList<AztecState>();
+        // Queue<AztecState> closed = new LinkedList<AztecState>();
+
+        open.add(this);
+
+        do 
+        {
+            AztecState popped = open.remove();
+            ArrayList<AztecState> toPush = validate(permute(popped));
+            AztecState possibleAnswer = findAnswer(toPush);
+
+            if (possibleAnswer == null)
+            {
+                for (AztecState s : toPush) 
+                {
+                    open.add(s);
+                }
+            }
+            else
+            {
+                System.out.print("BFS Solution found: " + possibleAnswer.toString());
+                System.out.println();
+                System.out.println(permutation + " permutations generated.");
+                return;
+            }
+        } 
+        while (!open.isEmpty());
+    }
+
+    public void iterativeDeepeningSearch(int maxDepth)
+    {
+        Stack<AztecState> open = new Stack<AztecState>();
+
+        // open.push(this);
+
+        for (int i = 0; i < maxDepth; i++) 
+        {
+            int depth = 0;
+            do 
+            {
+                if (open.isEmpty())
+                {
+                    open.push(this);
+                }
+                AztecState popped = open.pop();
+                ArrayList<AztecState> toPush = validate(permute(popped));
+                AztecState possibleAnswer = findAnswer(toPush);
+
+                depth++;
+                if (depth >= i)
+                {
+                    System.out.println("finished search with depth limit " + i);
+                    break;
+                }
+
+                if (possibleAnswer == null)
+                {
+                    for (AztecState s : toPush) 
+                    {
+                        open.push(s);
+                    }
+                }
+                else
+                {
+                    System.out.print("IDS Solution found: " + possibleAnswer.toString());
+                    System.out.println();
+                    System.out.println(permutation + " permutations generated.");
+                    return;
+                }
+            } 
+            while (!open.isEmpty());
+        }
+    }
+
     private ArrayList<AztecState> permute(AztecState toPermute)
     {
         ArrayList<AztecState> ret = new ArrayList<AztecState>();
+        AztecState temp1 = toPermute.deepCopy();  // make a deep copy
 
-        for (int i = 0; i < toPermute.state.size(); i++)
-        // for (AztecNode var : toPermute.state) 
+        // for each node
+        for (int i = 0; i < temp1.state.size(); i++)
         {
+            // if this node is 0
             if (toPermute.state.get(i).node == 0)
             {
                 for (int j = 1; j <= 9; j++) 
                 {
-                    AztecState temp = toPermute.deepCopy();  // make a deep copy
-                    temp.get(i).setNode(j);             // permute 0 to others
-                    ret.add(temp);                     // add to return list
+                    temp1.get(i).setNode(j);             // permute 0 to others
+                    AztecState temp2 = temp1.deepCopy();
+                    ret.add(temp2);                     // add to return list
                     permutation++;
                 }
+
+                break;
             }
         }
 
@@ -342,11 +436,11 @@ class AztecState
         {
             if (n.node == 0)
             {
-                return false;
+                return true;
             }
         }
         
-        return true;
+        return false;
     }
 
     // since everything is validated, there are only states with 0 or answers
@@ -374,4 +468,192 @@ class AztecState
 
         return ret;
     }
+
+    private static int[] validTuples(int forNumber)
+    {
+        
+        int[][][] tuples = 
+        {
+            {  // 1
+            {1,2},
+            {2,1},
+            {2,3},
+            {3,2},
+            {3,4},
+            {4,3},
+            {4,5},
+            {5,4},
+            {5,6},
+            {6,5},
+            {6,7},
+            {7,6},
+            {7,8},
+            {8,7},
+            {8,9},
+            {9,8},
+            },
+            
+              
+            
+            
+            {  // 2
+                
+            {1,2},
+            {1,3},
+            {2,1},
+            {2,4},
+            {3,1},
+            {3,5},
+            {3,6},
+            {4,2},
+            {4,6},
+            {4,8},
+            {5,3},
+            {5,7},
+            {6,3},
+            {6,4},
+            {6,8},
+            {7,5},
+            {7,9},
+            {8,4},
+            {8,6},
+            {9,7}
+            },
+            
+            
+            {    //3
+            {1,2},
+            {1,3},
+            {1,4},
+            {2,1},
+            {2,5},
+            {2,6},
+            {3,1},
+            {3,6},
+            {3,9},
+            {4,1},
+            {4,7},
+            {5,2},
+            {5,8},
+            {6,2},
+            {6,3},
+            {6,9},
+            {7,4},
+            {8,5},
+            {9,3},
+            {9,6}
+            },
+            
+            
+            
+            {   //4
+            {1,3},
+            {1,4},
+            {1,5},
+            {2,6},
+            {2,8},
+            {3,1},
+            {3,7},
+            {4,1},
+            {4,8},
+            {5,1},
+            {5,9},
+            {6,2},
+            {7,3},
+            {8,2},
+            {8,4},
+            {9,5}
+            },
+            
+            
+            {    //5
+            {1,4},
+            {1,5},
+            {1,6},
+            {2,3},
+            {2,7},
+            {3,2},
+            {3,8},
+            {4,1},
+            {4,9},
+            {5,1},
+            {6,1},
+            {7,2},
+            {8,3},
+            {9,4}
+            },
+            
+            
+            
+            {    //6
+            {1,5},
+            {1,6},
+            {1,7},
+            {2,3},
+            {2,4},
+            {2,8},
+            {3,2},
+            {3,9},
+            {4,2},
+            {5,1},
+            {6,1},
+            {7,1},
+            {8,2},
+            {9,3}
+            },
+            
+            
+            {    // 7
+            {1,6},
+            {1,7},
+            {1,8},
+            {2,5},
+            {2,9},
+            {3,4},
+            {4,3},
+            {5,2},
+            {6,1},
+            {7,1},
+            {8,1},
+            {9,2}
+            },
+            
+            
+            
+            
+            {   // 8
+            {1,7},
+            {1,8},
+            {1,9},
+            {2,4},
+            {2,6},
+            {3,5},
+            {4,2},
+            {5,3},
+            {6,2},
+            {7,1},
+            {8,1},
+            {9,1}
+            },
+            
+            
+            {     // 9
+            {1,8},
+            {1,9},
+            {2,7},
+            {3,6},
+            {4,5},
+            {5,4},
+            {6,3},
+            {7,2},
+            {8,1},
+            {9,1}
+            }
+            
+            };
+    
+        return null;
+    }
+
 }
+

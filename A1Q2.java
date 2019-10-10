@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 
 
 /**
@@ -6,29 +5,39 @@ import java.util.ArrayList;
  */
 public class A1Q2 {
 
-    public static void main(String[] args) {
-        ArrayList<Integer> test = new ArrayList<Integer>();
-        test.add(1);
-        test.add(2);
-        test.add(3);
-        test.add(4);
-        test.add(5);
-
-        System.out.println(test);
-        
-        System.out.println(manipulate(test));
-        
-        System.out.println(test);
-        
-
-    }
-
-    public static ArrayList<Integer> manipulate(ArrayList<Integer> tryThis)
+    public static void main(String[] args) 
     {
-        tryThis.set(2, 6);
+        
+        for (int i = 1; i <= 9; i++) 
+        {
+            System.out.println(i);
 
-        System.out.println(tryThis);
+            for (int j = 1; j <= 9; j++) 
+            {
+                for (int k = 1; k <= 9; k++) 
+                {
+                    if
+                    (
+                        j + k == i ||
+                        j - k == i ||
+                        k - j == i ||
+                        j * k == i ||
+                        (double) j / (double) k == (double) i || 
+                        (double) k / (double) j == (double) i
+                    )
+                    {
+                        System.out.println("" + j + "" + k);
+                    }
+        
+                }
+            }
 
-        return tryThis;
+
+            System.out.println();
+            System.out.println();
+            System.out.println();
+        }
+
     }
+
 }
