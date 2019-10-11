@@ -19,26 +19,12 @@ public class A1Q1
         AztecState dfs = original.deepCopy();
         AztecState bfs = original.deepCopy();
         AztecState ids = original.deepCopy();
-        // AztecState informed = original.deepCopy();
+        AztecState informed = original.deepCopy();
 
         dfs.depthFirstSearch();
         bfs.breadthFirstSearch();
         ids.iterativeDeepeningSearch(100);
-
-        // AztecState test = new AztecState("3,9,6,1,9,3,7,4,0,8");
-        // System.out.println(test.isValid());
-    }
-    
-    public static ArrayList<AztecNode> deepCopy(ArrayList<AztecNode> original)
-    {
-        ArrayList<AztecNode> ret = new ArrayList<AztecNode>();
-        
-        for (AztecNode n : original) 
-        {
-            ret.add(n);
-        }
-
-        return ret;
+        informed.informedSearch();
     }
 }
 
@@ -384,19 +370,19 @@ class AztecState
     private ArrayList<AztecState> permute(AztecState toPermute)
     {
         ArrayList<AztecState> ret = new ArrayList<AztecState>();
-        AztecState temp1 = toPermute.deepCopy();  // make a deep copy
+        AztecState backup = toPermute.deepCopy();  // make a deep copy
 
         // for each node
-        for (int i = 0; i < temp1.state.size(); i++)
+        for (int i = 0; i < backup.state.size(); i++)
         {
             // if this node is 0
             if (toPermute.state.get(i).node == 0)
             {
                 for (int j = 1; j <= 9; j++) 
                 {
-                    temp1.get(i).setNode(j);             // permute 0 to others
-                    AztecState temp2 = temp1.deepCopy();
-                    ret.add(temp2);                     // add to return list
+                    backup.get(i).setNode(j);             // permute 0 to others
+                    AztecState temp = backup.deepCopy();
+                    ret.add(temp);                     // add to return list
                     permutation++;
                 }
 
@@ -469,191 +455,187 @@ class AztecState
         return ret;
     }
 
-    private static int[] validTuples(int forNumber)
+    // tuples[root][indexPermutation][0 for left child, 1 for right child]
+    private static int[][] validTuples(int forNumber)
     {
-        
-        int[][][] tuples = 
+        // crazy hard coding
+        final int[][][] tuples = 
         {
             {  // 1
-            {1,2},
-            {2,1},
-            {2,3},
-            {3,2},
-            {3,4},
-            {4,3},
-            {4,5},
-            {5,4},
-            {5,6},
-            {6,5},
-            {6,7},
-            {7,6},
-            {7,8},
-            {8,7},
-            {8,9},
-            {9,8},
+                {1,2},{2,1},{2,3},{3,2},{3,4},{4,3},{4,5},{5,4},{5,6},{6,5},
+                {6,7},{7,6},{7,8},{8,7},{8,9},{9,8}
             },
             
-              
-            
-            
-            {  // 2
-                
-            {1,2},
-            {1,3},
-            {2,1},
-            {2,4},
-            {3,1},
-            {3,5},
-            {3,6},
-            {4,2},
-            {4,6},
-            {4,8},
-            {5,3},
-            {5,7},
-            {6,3},
-            {6,4},
-            {6,8},
-            {7,5},
-            {7,9},
-            {8,4},
-            {8,6},
-            {9,7}
+            {  // 2                
+                {1,2},{1,3},{2,1},{2,4},{3,1},{3,5},{3,6},{4,2},{4,6},{4,8},
+                {5,3},{5,7},{6,3},{6,4},{6,8},{7,5},{7,9},{8,4},{8,6},{9,7}
+            },
+
+            {  // 3
+                {1,2},{1,3},{1,4},{2,1},{2,5},{2,6},{3,1},{3,6},{3,9},{4,1},
+                {4,7},{5,2},{5,8},{6,2},{6,3},{6,9},{7,4},{8,5},{9,3},{9,6}
             },
             
-            
-            {    //3
-            {1,2},
-            {1,3},
-            {1,4},
-            {2,1},
-            {2,5},
-            {2,6},
-            {3,1},
-            {3,6},
-            {3,9},
-            {4,1},
-            {4,7},
-            {5,2},
-            {5,8},
-            {6,2},
-            {6,3},
-            {6,9},
-            {7,4},
-            {8,5},
-            {9,3},
-            {9,6}
+            {  // 4
+                {1,3},{1,4},{1,5},{2,6},{2,8},{3,1},{3,7},{4,1},{4,8},{5,1},
+                {5,9},{6,2},{7,3},{8,2},{8,4},{9,5}
             },
             
-            
-            
-            {   //4
-            {1,3},
-            {1,4},
-            {1,5},
-            {2,6},
-            {2,8},
-            {3,1},
-            {3,7},
-            {4,1},
-            {4,8},
-            {5,1},
-            {5,9},
-            {6,2},
-            {7,3},
-            {8,2},
-            {8,4},
-            {9,5}
+            {  // 5
+                {1,4},{1,5},{1,6},{2,3},{2,7},{3,2},{3,8},{4,1},{4,9},{5,1},
+                {6,1},{7,2},{8,3},{9,4}
             },
             
-            
-            {    //5
-            {1,4},
-            {1,5},
-            {1,6},
-            {2,3},
-            {2,7},
-            {3,2},
-            {3,8},
-            {4,1},
-            {4,9},
-            {5,1},
-            {6,1},
-            {7,2},
-            {8,3},
-            {9,4}
+            {  // 6
+                {1,5},{1,6},{1,7},{2,3},{2,4},{2,8},{3,2},{3,9},{4,2},{5,1},
+                {6,1},{7,1},{8,2},{9,3}
             },
             
-            
-            
-            {    //6
-            {1,5},
-            {1,6},
-            {1,7},
-            {2,3},
-            {2,4},
-            {2,8},
-            {3,2},
-            {3,9},
-            {4,2},
-            {5,1},
-            {6,1},
-            {7,1},
-            {8,2},
-            {9,3}
+            {  // 7
+                {1,6},{1,7},{1,8},{2,5},{2,9},{3,4},{4,3},{5,2},{6,1},{7,1},
+                {8,1},{9,2}
             },
             
-            
-            {    // 7
-            {1,6},
-            {1,7},
-            {1,8},
-            {2,5},
-            {2,9},
-            {3,4},
-            {4,3},
-            {5,2},
-            {6,1},
-            {7,1},
-            {8,1},
-            {9,2}
+            {  // 8
+                {1,7},{1,8},{1,9},{2,4},{2,6},{3,5},{4,2},{5,3},{6,2},{7,1},
+                {8,1},{9,1}
             },
             
-            
-            
-            
-            {   // 8
-            {1,7},
-            {1,8},
-            {1,9},
-            {2,4},
-            {2,6},
-            {3,5},
-            {4,2},
-            {5,3},
-            {6,2},
-            {7,1},
-            {8,1},
-            {9,1}
-            },
-            
-            
-            {     // 9
-            {1,8},
-            {1,9},
-            {2,7},
-            {3,6},
-            {4,5},
-            {5,4},
-            {6,3},
-            {7,2},
-            {8,1},
-            {9,1}
+            {  // 9
+                {1,8},{1,9},{2,7},{3,6},{4,5},{5,4},{6,3},{7,2},{8,1},{9,1}
             }
             
-            };
+        };
     
-        return null;
+        return tuples[forNumber];
     }
 
+    // private static ArrayList<int[]> validTuples(int forNumber, 
+    //                                             boolean isLeftChild, int child)
+    // {
+    //     int[][] tuples = validTuples(forNumber);
+    //     ArrayList<int[]> ret = new ArrayList<int[]>();
+
+    //     for (int[] p : tuples) 
+    //     {
+    //         if (isLeftChild && p[0] == child)
+    //         {
+    //             ret.add(p);
+    //         }
+    //         else if (!isLeftChild && p[1] == child)
+    //         {
+    //             ret.add(p);
+    //         }
+            
+    //     }
+
+    //     return ret;
+    // }
+
+    public void informedSearch()
+    {
+        Stack<AztecState> open = new Stack<AztecState>();
+
+        open.push(this);
+
+        do 
+        {
+            AztecState popped = open.pop();
+            ArrayList<AztecState> toPush = informedPermute(popped);
+            AztecState possibleAnswer = findAnswer(toPush);
+
+            if (possibleAnswer == null)
+            {
+                for (AztecState s : toPush) 
+                {
+                    open.push(s);
+                }
+            }
+            else
+            {
+                System.out.print("Informed DFS Solution found: " + possibleAnswer.toString());
+                System.out.println();
+                System.out.println(permutation + " permutations generated.");
+                return;
+            }
+        } 
+        while (!open.isEmpty());
+    }
+
+    private ArrayList<AztecState> informedPermute(AztecState toPermute)
+    {
+        ArrayList<AztecState> ret = new ArrayList<AztecState>();
+
+        // for each node
+        for (int i = 0; i < toPermute.state.size(); i++)
+        {
+            AztecNode n = toPermute.state.get(i);
+            int[][] tuples = validTuples(n.getNode());
+            AztecNode leftChild = n.getLeftChild();
+            AztecNode rightChild = n.getRightChild();
+
+            if (leftChild == null || rightChild == null)
+            {
+                continue;
+            }
+            // found the node with 0 in both children 
+            else if (leftChild.getNode() == 0 && rightChild.getNode() == 0)
+            {
+                for (int[] t : tuples) 
+                {
+                    AztecState toAdd = toPermute.deepCopy();
+                    toAdd.state.get(i).getLeftChild().setNode(t[0]);
+                    toAdd.state.get(i).getRightChild().setNode(t[1]);
+                    ret.add(toAdd);
+                    permutation++;
+                }
+
+                break;
+            }
+            // found the node with 0 in right child
+            else if (leftChild.getNode() != 0 && rightChild.getNode() == 0)
+            {
+                for (int[] t : tuples) 
+                {
+                    AztecState toAdd = toPermute.deepCopy();
+                    if (t[1] == rightChild.getNode())
+                    {
+                        toAdd.state.get(i).getRightChild().setNode(t[1]);
+                        // set the right child, leave the left child alone
+                        ret.add(toAdd);
+                        permutation++;
+                    }
+                }
+            }
+            // found the node with 0 in left child
+            else if (leftChild.getNode() == 0 && rightChild.getNode() != 0)
+            {
+                for (int[] t : tuples) 
+                {
+                    AztecState toAdd = toPermute.deepCopy();
+                    if (t[1] == rightChild.getNode())
+                    {
+                        toAdd.state.get(i).getLeftChild().setNode(t[0]);
+                        // set the left child, leave the right child alone
+                        ret.add(toAdd);
+                        permutation++;
+                    }
+                }
+            }
+            else
+            {
+                continue;
+            }
+        }
+
+        if (ret.isEmpty())
+        {
+            return null;
+        }
+        else
+        {
+            return ret;
+        }
+    }
 }
 
