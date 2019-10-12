@@ -1,38 +1,38 @@
+import java.util.ArrayList;
+
 /**
  * A1Q2
  */
 public class A1Q2 {
-
-    
+    public static void main(String[] args) {
+        
+    }
 }
 
-class Board 
+public enum BoardNode
 {
-    private int[][] board;
-    private int[] start;
-    private int[] end;
-    private int[] agent;
+    COST1 = 1;
+    COST2 = 2;
+    COST3 = 3;
+    COST4 = 4;
+    COST5 = 5;
+    WALL = 99;
+}
 
-    public Board(int row, int column, String maze)
-    {
-        this.board = new int[row][column];
-        this.start = new int[2];
-        this.end = new int[2];
-        this.agent = new int[2];
+public enum Direction
+{
+    N = {}
+}
 
-        int counter = 0;
-        char[] mazeCharArray = maze.replaceAll("\n", "").toCharArray();
-
-        for (int i = 0; i < row; i++) 
-        {
-            for (int j = 0; j < column; j++) 
-            {
-                this.board[i][j] = mazeCharArray[counter];
-            }
-        }
-
-
-    }
+/**
+ * Board
+ */
+public class Board 
+{
+    private BoardNode[][] board;
+    private int[] agentLocation;
+    private ArrayList<int[]> bombLocation;
 
 
+    
 }
